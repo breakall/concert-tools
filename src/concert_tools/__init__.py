@@ -15,6 +15,7 @@ from .enumeration import (
     enumerate_plugins,
 )
 from .manifest import ChannelManifest, PatchManifest, inspect_patch_manifest
+from .mappings import ScreenControlMapping, enumerate_screen_control_mappings
 from .parameter_metadata import (
     ParameterMetadataEntry,
     ParameterMetadataTable,
@@ -37,6 +38,7 @@ __all__ = [
     "PatchManifest",
     "PluginEntry",
     "PluginParameter",
+    "ScreenControlMapping",
     "ValidationIssue",
     "clone_patch",
     "compose_patch",
@@ -47,6 +49,7 @@ __all__ = [
     "enumerate_parameters",
     "enumerate_patches",
     "enumerate_plugins",
+    "enumerate_screen_control_mappings",
     "inspect_concert",
     "inspect_patch",
     "inspect_patch_manifest",

@@ -18,6 +18,7 @@ from .enumeration import (
 )
 from .errors import ConcertFormatError
 from .manifest import inspect_patch_manifest
+from .mappings import enumerate_screen_control_mappings
 from .parameter_metadata import discover_parameter_metadata
 from .validation import validate_concert
 
@@ -92,6 +93,13 @@ def parser() -> argparse.ArgumentParser:
         help="Search only this Logic Plug-In Settings root; may be repeated",
     )
     parameter_metadata.add_argument("--json", action="store_true", dest="as_json")
+
+    mappings = commands.add_parser(
+        "mappings",
+        help="Enumerate mappings owned by screen controls in one patch",
+    )
+    mappings.add_argument("patch", type=Path)
+    mappings.add_argument("--json", action="store_true", dest="as_json")
 
     return result
 
@@ -238,6 +246,22 @@ def _parameter_metadata(args: argparse.Namespace) -> int:
     return 0
 
 
+def _mappings(args: argparse.Namespace) -> int:
+    entries = enumerate_screen_control_mappings(args.patch)
+    if args.as_json:
+        print(json.dumps([entry.as_dict() for entry in entries], indent=2))
+    else:
+        for entry in entries:
+            destination = entry.target_channel or "Unresolved destination"
+            detail = ""
+            if entry.plugin_slot is not None:
+                detail = f" slot {entry.plugin_slot}"
+            if entry.parameter_index is not None:
+                detail += f" parameter {entry.parameter_index}"
+            print(f"{entry.control}[{entry.mapping_index}] -> {destination}{detail}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
@@ -259,6 +283,8 @@ def main(argv: list[str] | None = None) -> int:
             return _parameters(args)
         if args.command == "parameter-metadata":
             return _parameter_metadata(args)
+        if args.command == "mappings":
+            return _mappings(args)
     except (ConcertFormatError, OSError, TypeError, ValueError) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 2

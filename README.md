@@ -21,6 +21,7 @@ the same operations.
 - Discover arbitrary `.patch` bundles and inspect their channel manifests.
 - Combine compatible pre-positioned component patches into a standalone patch.
 - Independently enumerate a concert's patches, a patch's channel strips, or a channel strip's plugins.
+- Enumerate every mapping owned by a patch's screen controls, including destination strips and parameter coordinates.
 - Enumerate declared native PST float slots or query named Audio Unit parameters for one selected plugin.
 - Discover installed Logic parameter-name tables and enrich native PST values without bundling Apple metadata.
 
@@ -49,6 +50,7 @@ concert-tools patches "Performance.concert" --json
 concert-tools channel-strips "Patch.patch" --json
 concert-tools plugins "Piano Layer.cst" --json
 concert-tools parameters "Piano Layer.cst" --plugin 2 --json
+concert-tools mappings "Piano.patch" --json
 concert-tools parameter-metadata "Channel EQ" --json
 concert-tools compose \
   "Piano Position 1.patch" \
@@ -66,12 +68,17 @@ combines every channel strip, allocates fresh instance IDs, assigns fresh channe
 and emits one standalone `.patch` bundle. Source order is preserved. The command refuses incompatible mapping
 graphs, ambiguous host archives, symlinks, duplicate identities, and existing output paths.
 
-The four enumeration commands are intentionally independent and return only one immediate level:
+The enumeration commands are intentionally independent and return only one immediate level:
 
 - `patches` accepts a `.concert` bundle.
 - `channel-strips` accepts one `.patch` bundle.
 - `plugins` accepts one `.cst` channel-strip setting.
 - `parameters` accepts one `.cst` and the one-based plugin index returned by `plugins`.
+- `mappings` accepts one `.patch` and returns one entry for each mapping owned by its screen controls.
+
+Mapping enumeration preserves each control's identity and mapping order while reporting the mapping class, target
+channel-strip instance ID and name, plug-in slot, parameter index, saved value, range, and discrete or momentary
+behavior where those fields exist. It does not decide which mappings belong to a higher-level workflow.
 
 Plugin enumeration reports file order, MainStage slot, role, preset format, displayed name, preset filename, and
 Audio Unit component codes where available. For native PST plugins, parameter enumeration reads only the float-slot
